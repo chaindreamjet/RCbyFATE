@@ -9,10 +9,10 @@ https://drive.google.com/open?id=1FFQ8mkT2jnpjV-fqVwScWeLoCIhILPrG
 
 两台主机名: 
 
-| 主机名 | 又名  | private IP      | cluster ID |
-| ------ | ----- | --------------- | ---------- |
-| party1 | host  | 192.168.246.149 | 10000      |
-| party2 | guest | 192.168.246.148 | 9999       |
+| 主机名 | 又名   | cluster ID |
+| ------ | ----- | ---------- |
+| party1 | host | 10000      |
+| party2 | guest | 9999       |
 
 
 
@@ -39,10 +39,23 @@ password: root
 
 # 部署
 
+**检查 private IP**
+```
+ifconfig
+```
+不出意外应该是名叫ens\*\*的那个网卡
+
+**修改hosts**
+```
+vim /etc/hosts
+```
+把party1, party2 对应的IP改成上面查到的private IP, Ubuntu64_1对应party1, Ubuntu64_2对应party2
+
 **部署集群（只用在host上执行，重启后需再次部署）**
 
 ```
 cd docker-deploy/
+bash generate_config.sh
 bash docker_deploy.sh all
 ```
 
