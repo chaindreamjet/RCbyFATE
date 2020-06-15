@@ -2,7 +2,7 @@
 
 **URL for VMs**
 
-https://drive.google.com/open?id=1FFQ8mkT2jnpjV-fqVwScWeLoCIhILPrG
+https://drive.google.com/file/d/1jpAZs_xTIcSfAsuoBkw3rmy2mzVxuQLT/view?usp=sharing
 
 
 **集群信息**
