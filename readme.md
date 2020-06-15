@@ -1,5 +1,10 @@
 # 基本信息
 
+URL for VMs
+
+https://drive.google.com/open?id=1FFQ8mkT2jnpjV-fqVwScWeLoCIhILPrG
+
+
 **集群信息**
 
 两台主机名: 
