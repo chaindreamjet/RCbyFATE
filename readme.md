@@ -9,10 +9,6 @@ https://drive.google.com/open?id=1FFQ8mkT2jnpjV-fqVwScWeLoCIhILPrG
 
 两台主机名: 
 
-party1(host), private IP 192.168.246.149, cluster ID 10000
-
-party2(guest), private IP 192.168.246.148, cluster ID 9999
-
 | 主机名 | 又名  | private IP      | cluster ID |
 | ------ | ----- | --------------- | ---------- |
 | party1 | host  | 192.168.246.149 | 10000      |
