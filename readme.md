@@ -45,11 +45,17 @@ ifconfig
 ```
 不出意外应该是名叫ens\*\*的那个网卡
 
-**修改hosts**
+**修改hosts以及配置文件**
 ```
 vim /etc/hosts
 ```
 把party1, party2 对应的IP改成上面查到的private IP, Ubuntu64_1对应party1, Ubuntu64_2对应party2
+
+```
+cd docker-deploy/
+vim parties.conf
+```
+把两个iplist变量中的party1, party2替换成对应的private IP
 
 **部署集群（只用在host上执行，重启后需再次部署）**
 
