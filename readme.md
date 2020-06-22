@@ -15,17 +15,6 @@ https://drive.google.com/file/d/1jpAZs_xTIcSfAsuoBkw3rmy2mzVxuQLT/view?usp=shari
 | party2 | guest | 9999       |
 
 
-
-**终端工作目录（host）**
-
-~/docker-deploy/
-
-```
-cd docker-deploy/
-```
-
-
-
 **工作用户**
 
 root
@@ -34,6 +23,17 @@ root
 sudo su -
 password: root
 ```
+
+
+**终端工作目录（host）**
+
+/root/docker-deploy/
+
+```
+cd docker-deploy/
+```
+
+
 
 
 
