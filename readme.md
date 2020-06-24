@@ -521,8 +521,10 @@ python fate_flow_client.py -f bind -c examples/bind_model_service.json
 
 第一种方法：curl
 
+(其中${SERVING_SERVICE_IP}一般就是localhost)
+
 ```bash
-curl -X POST -H 'Content-Type: application/json' -i 'http://${host private IP}:8059/federation/v1/inference' --data '{
+curl -X POST -H 'Content-Type: application/json' -i 'http://${SERVING_SERVICE_IP}:8059/federation/v1/inference' --data '{
   "head": {
     "serviceId": "001"
   },
@@ -548,9 +550,9 @@ curl -X POST -H 'Content-Type: application/json' -i 'http://${host private IP}:8
 
 第二种方法：RESTED(Chrome插件)
 
-返回
+如果成功则会返回
 
 ```
-{"flag":0,"data":{"prob":0.30684422824464636,"retmsg":"success","retcode":0}
+{"flag":0,"data":{"prob":0.020201574669380547,"retcode":0},"retmsg":"success","retcode":0}
 ```
 
