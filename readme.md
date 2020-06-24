@@ -84,4 +84,21 @@ python run_toy_example.py 10000 9999 1
 ```
 
 
+# 训练
 
+```
+docker exec -it confs-10000_python_1 bash (host)
+docker exec -it confs-9999_python_1 bash (guest)
+cd fate_flow/
+```
+
+建议把一个项目的所有数据文件、配置文件放在一个文件夹
+这里以examples/文件夹为例
+
+**准备数据文件**
+host方：examples/data/breast_a.csv
+guest方：examples/data/breast_b.csv
+
+**配置上传选项**
+host方：vi examples/upload_host.json
+guest方 > vi examples/upload_guest.json
