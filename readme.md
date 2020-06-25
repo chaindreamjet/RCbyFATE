@@ -2,7 +2,10 @@
 
 **URL for VMs**
 
-https://drive.google.com/file/d/1jpAZs_xTIcSfAsuoBkw3rmy2mzVxuQLT/view?usp=sharing
+party1(host):
+https://drive.google.com/file/d/1CTGmE6zcwXqAuCvn5Xr-PH-PW2QWFi7E/view?usp=sharing
+party2(guest):
+https://drive.google.com/file/d/1uLMsLhvtaFaqL8RH8EqwMJ03FZmVGxj-/view?usp=sharing
 
 
 
