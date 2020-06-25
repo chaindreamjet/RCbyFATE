@@ -1,10 +1,13 @@
 # 基本信息
 
-**URL for VMs**
+**Links for VMs**
 
-party1(host):
-https://drive.google.com/file/d/1CTGmE6zcwXqAuCvn5Xr-PH-PW2QWFi7E/view?usp=sharing
-party2(guest):
+party1(host): 
+
+https://drive.google.com/file/d/1CTGmE6zcwXqAuCvn5Xr-PH-PW2QWFi7E/view?usp=sharing 
+
+party2(guest): 
+
 https://drive.google.com/file/d/1uLMsLhvtaFaqL8RH8EqwMJ03FZmVGxj-/view?usp=sharing
 
 
@@ -553,7 +556,7 @@ curl -X POST -H 'Content-Type: application/json' -i 'http://${SERVING_SERVICE_IP
 
 第二种方法：RESTED(Chrome插件)
 
-如果成功则会返回
+返回
 
 ```
 {"flag":0,"data":{"prob":0.020201574669380547,"retcode":0},"retmsg":"success","retcode":0}
