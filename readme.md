@@ -102,6 +102,20 @@ python run_toy_example.py 10000 9999 1
 
 
 
+**停止集群，删除部署**
+
+```bash
+bash docker_deploy.sh --delete all
+```
+
+```bash
+cd /data/projects/fate/confs-<id>/  # id of party (10000, 9999)
+docker-compose down
+rm -rf ../confs-<id>/
+```
+
+
+
 # 训练
 
 **进入容器（双方）**
