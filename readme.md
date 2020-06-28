@@ -74,12 +74,25 @@ vim parties.conf
 
 
 
-**部署集群（只用在host上执行，重启后需再次部署）**
+**部署集群（只用在host上执行，只需第一次执行，之后重启只需启动集群）**
 
 ```bash
 cd docker-deploy/
 bash generate_config.sh
 bash docker_deploy.sh all
+```
+
+
+
+**启动集群（部署集群之后，每次重启只需启动集群）**
+
+这个也可以用来启动已经关闭的组件（当你发现某个组件比如fateboard 停止了，也可以用这个命令启动）
+
+与部署集群不同，单纯启动集群会保留之前的文件和配置，部署集群会忽略之前的配置，格式化
+
+```bash
+cd /data/projects/fate/confs-<container-ID>
+docker-compose up -d
 ```
 
 
