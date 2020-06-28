@@ -30,7 +30,7 @@
         "host": {
             "args": {
                 "data": {
-                    "train_data": [{"name": "rong_guest", "namespace": "rong"}],
+                    "train_data": [{"name": "rong_host", "namespace": "rong"}],
                     "eval_data": [{"name": "rong_test", "namespace": "rong"}]
                 }
             },
