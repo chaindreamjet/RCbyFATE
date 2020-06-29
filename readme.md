@@ -4,11 +4,11 @@
 
 party1(host): 
 
-https://drive.google.com/file/d/1CTGmE6zcwXqAuCvn5Xr-PH-PW2QWFi7E/view?usp=sharing 
+https://drive.google.com/file/d/1GMSVZBlbi0Ir_wmj3jqB8QERQ8kBw0f3/view?usp=sharing
 
 party2(guest): 
 
-https://drive.google.com/file/d/1uLMsLhvtaFaqL8RH8EqwMJ03FZmVGxj-/view?usp=sharing
+https://drive.google.com/file/d/1WtcmjDKfN2h8hi1P1hnhXYQh3I6cbTMr/view?usp=sharing
 
 
 
