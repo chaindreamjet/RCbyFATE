@@ -93,6 +93,8 @@ bash docker_deploy.sh all
 ```bash
 cd /data/projects/fate/confs-<container-ID>
 docker-compose up -d
+cd /data/projects/fate/serving-<container-ID>
+docker-compose up -d
 ```
 
 
