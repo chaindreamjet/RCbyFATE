@@ -1,94 +1,14 @@
 # 基本信息
 
-**Links for VMs**
-
-party1(host): 
-
-https://drive.google.com/file/d/1GMSVZBlbi0Ir_wmj3jqB8QERQ8kBw0f3/view?usp=sharing
-
-party2(guest): 
-
-https://drive.google.com/file/d/1WtcmjDKfN2h8hi1P1hnhXYQh3I6cbTMr/view?usp=sharing
-
-
-
-
-**集群信息**
-
-两台主机名: 
-
-| 主机名 | 又名  | cluster ID |
-| ------ | ----- | ---------- |
-| party1 | host  | 10000      |
-| party2 | guest | 9999       |
-
-
-
 **工作用户**
 
 root
 
-```bash
-sudo su -
-password: root
-```
 
 
-
-**终端工作目录（host）**
-
-/root/docker-deploy/
-
-```bash
-cd docker-deploy/
-```
-
-
-
-# 部署
-
-**检查 private IP**
-
-```bash
-ifconfig
-```
-
-不出意外应该是名叫ens\*\*的那个网卡
-
-
-
-**修改hosts以及配置文件**
-
-```bash
-vim /etc/hosts
-```
-
-把party1, party2 对应的IP改成上面查到的private IP, Ubuntu64_1对应party1, Ubuntu64_2对应party2
-
-```bash
-cd docker-deploy/
-vim parties.conf
-```
-
-把两个iplist变量中的party1, party2替换成对应的private IP
-
-
-
-**部署集群（只用在host上执行，只需第一次执行，之后重启只需启动集群）**
-
-```bash
-cd docker-deploy/
-bash generate_config.sh
-bash docker_deploy.sh all
-```
-
-
-
-**启动集群（部署集群之后，每次重启只需启动集群）**
+# 启动集群（双方）
 
 这个也可以用来启动已经关闭的组件（当你发现某个组件比如fateboard 停止了，也可以用这个命令启动）
-
-与部署集群不同，单纯启动集群会保留之前的文件和配置，部署集群会忽略之前的配置，格式化
 
 ```bash
 cd /data/projects/fate/confs-<container-ID>
@@ -103,30 +23,6 @@ docker-compose up -d
 
 ```bash
 docker ps
-```
-
-
-
-**验证部署**
-
-```bash
-docker exec -it confs-10000_python_1 bash     #进入python组件容器内部
-cd /data/projects/fate/python/examples/toy_example
-python run_toy_example.py 10000 9999 1 
-```
-
-
-
-**停止集群，删除部署**
-
-```bash
-bash docker_deploy.sh --delete all
-```
-
-```bash
-cd /data/projects/fate/confs-<id>/  # id of party (10000, 9999)
-docker-compose down
-rm -rf ../confs-<id>/
 ```
 
 

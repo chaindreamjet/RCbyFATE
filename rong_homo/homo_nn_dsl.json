@@ -1,0 +1,130 @@
+{
+  "components": {
+      "dataio_0": {
+          "module": "DataIO",
+          "input": {
+              "data": {
+                  "data": [
+                      "args.train_data"
+                  ]
+              }
+          },
+          "output": {
+              "data": [
+                  "train"
+              ],
+              "model": [
+                  "dataio"
+              ]
+          }
+      },
+      "feature_scale_0": {
+          "module": "FeatureScale",
+          "input": {
+              "data": {
+                  "data": [
+                      "dataio_0.train"
+                  ]
+              }
+          },
+          "output": {
+              "data": ["train"],
+              "model": ["feature_scale"]
+          }
+      },
+      "dataio_1": {
+          "module": "DataIO",
+          "input": {
+              "data": {
+                  "data": [
+                      "args.eval_data"
+                  ]
+              },
+              "model": [
+                  "dataio_0.dataio"
+              ]
+          },
+          "output": {
+              "data": [
+                  "eval_data"
+              ]
+          }
+      },
+      "feature_scale_1": {
+          "module": "FeatureScale",
+          "input": {
+              "data": {
+                  "data": [
+                      "dataio_1.eval_data"
+                  ]
+              },
+              "model": [
+                  "feature_scale_0.feature_scale"
+              ]
+          },
+          "output": {
+              "data": ["train"],
+              "model": ["feature_scale"]
+          }
+      },
+      "homo_nn_0": {
+          "module": "HomoNN",
+          "input": {
+              "data": {
+                  "train_data": [
+                      "feature_scale_0.train"
+                  ]
+              }
+          },
+          "output": {
+              "data": [
+                  "train"
+              ],
+              "model": [
+                  "homo_nn"
+              ]
+          }
+      },
+      "homo_nn_1": {
+          "module": "HomoNN",
+          "input": {
+              "data": {
+                  "eval_data": [
+                      "feature_scale_1.train"
+                  ]
+              },
+              "model": [
+                  "homo_nn_0.homo_nn"
+              ]
+          },
+          "output": {
+              "data": [
+                  "predict"
+              ],
+              "model": [
+                  "homo_nn"
+              ]
+          }
+      },
+      "evaluation_0": {
+          "module": "Evaluation",
+          "input": {
+              "data": {
+                  "data": [
+                      "homo_nn_0.train"
+                  ]
+              }
+          }
+      },
+      "evaluation_1": {
+          "module": "Evaluation",
+          "input": {
+              "data": {
+                  "data": [
+                      "homo_nn_1.predict"
+                  ]
+              }
+          }
+      }
+  }
+}
