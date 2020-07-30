@@ -71,14 +71,14 @@ host
 vi examples/upload_host.json
 ```
 
-```json
+```
 {
-  "file": "examples/data/breast_a.csv", // data file to upload
+  "file": "examples/data/breast_a.csv", # data file to upload
   "head": 1,
   "partition": 10, 
-  "work_mode": 1, // 1 for cluster mode
+  "work_mode": 1, # 1 for cluster mode
   "namespace": "fate_flow_test_breast",
-  "table_name": "breast" // these two identify a dataset in FATE
+  "table_name": "breast" # these two identify a dataset in FATE
 }
 ```
 
@@ -135,7 +135,7 @@ Take Hetero Logistic Regression in *examples/* directory for example
 vi examples/test_hetero_lr_job_conf.json
 ```
 
-```json
+```
 {
     "initiator": {
         "role": "guest", # guest itself
@@ -339,7 +339,7 @@ Configure Load json file
 vi examples/publish_load_model.json
 ```
 
-```json
+```
 {
     "initiator": {
         "party_id": "9999",
@@ -401,7 +401,7 @@ Configure Bind json file
 vi examples/bind_model_service.json
 ```
 
-```json
+```
 {
     "service_id": "001", # assign an identified
     "initiator": {
