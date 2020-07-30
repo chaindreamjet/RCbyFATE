@@ -73,12 +73,12 @@ vi examples/upload_host.json
 
 ```json
 {
-  "file": "examples/data/breast_a.csv", # data file to upload
+  "file": "examples/data/breast_a.csv", // data file to upload
   "head": 1,
   "partition": 10, 
-  "work_mode": 1, # 1 for cluster mode
+  "work_mode": 1, // 1 for cluster mode
   "namespace": "fate_flow_test_breast",
-  "table_name": "breast" # these two identify a dataset in FATE
+  "table_name": "breast" // these two identify a dataset in FATE
 }
 ```
 
