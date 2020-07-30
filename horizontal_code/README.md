@@ -1,25 +1,25 @@
 ### feature_extract0
 
-- 处理user_info数据的信息
-- 使用one-hot处理
+- process the information in user_info table
+- Use One_hot Encode
 
 ### feature_extract1
 
-- 处理bill_detail数据
-- 补充特征，扩充特征
+- process the information in bill_detail table
+- extract features
 
 ### feature_extract2
 
-- 处理browse_history的数据
-- 统计特征
-- 合并之前的feature_extract。得到45k*900的数据集
+- process the information in browse_history table
+- get the statistical characterization and extract features
+- combie this table with before tables, and get the data with dimension 45,000 * 900
 
 ### feature_selection
 
-- 对feature extract的数据，使用xgboost 做feature_selection
-- 选出top 100维的数据
+- Use XGBoost model to do the feature selection
+- pick top 100 features (feature importance)
 
 ### horizontal_training
 
-- 划分测试集，bank A，bank B的数据
-- 本地模拟训练，得到各种情况下的auc
+- divide the data into Bank A training set, Bank B training set, and test set
+- train the model in local machine, get auc in different situations
