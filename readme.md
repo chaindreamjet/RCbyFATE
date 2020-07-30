@@ -1,14 +1,22 @@
-# 基本信息
+# Deployment
 
-**工作用户**
+https://github.com/FederatedAI/KubeFATE/tree/master/docker-deploy
+
+
+
+# Basic Information
+
+**user**
 
 root
 
 
 
-# 启动集群（双方）
+# Start Cluster (both parties)
 
 这个也可以用来启动已经关闭的组件（当你发现某个组件比如fateboard 停止了，也可以用这个命令启动）
+
+It could be also used to restart closed modules (for example, when you find some module such as FATE Board stopped unexpectedly, you could use these commands to restart it).
 
 ```bash
 cd /data/projects/fate/confs-<container-ID>
@@ -19,7 +27,7 @@ docker-compose up -d
 
 
 
-**查看组件状态**
+**View Modules' status**
 
 ```bash
 docker ps
@@ -27,9 +35,9 @@ docker ps
 
 
 
-# 训练
+# Training
 
-**进入容器（双方）**
+**Enter into Docker（both parties）**
 
 ```bash
 docker exec -it confs-10000_python_1 bash (host)
@@ -39,81 +47,81 @@ cd fate_flow/
 
 
 
-建议把一个项目的所有数据文件、配置文件放在一个文件夹
+You are recommended to put all the data files and config files into one directory of your project.
 
-这里以examples/文件夹为例
+Here we take the *examples/* directory for example.
 
 
 
-**准备数据文件（双方）**
+**Get Data Files Ready（both parties）**
 
-host方:
+host:
 
 examples/data/breast_a.csv
 
-guest方:
+guest:
 
 examples/data/breast_b.csv
 
 
 
-**配置上传选项（双方）**
+**Configure Upload Files（both parties）**
 
-host方
+host
 
 ```bash
 vi examples/upload_host.json
 ```
 
-```
+```json
 {
-  "file": "examples/data/breast_a.csv", # 数据文件
+  "file": "examples/data/breast_a.csv", # data file to upload
   "head": 1,
-  "partition": 10,
-  "work_mode": 1, # 修改成1，表示集群模式
+  "partition": 10, 
+  "work_mode": 1, # 1 for cluster mode
   "namespace": "fate_flow_test_breast",
-  "table_name": "breast" # 上传上去的表名两方要一致
+  "table_name": "breast" # these two identify a dataset in FATE
 }
 ```
 
 
 
-guest方
+guest
 
 ```bash
 vi examples/upload_guest.json
 ```
 
-```
+```json
 {
-  "file": "examples/data/breast_b.csv", # 数据文件
+  "file": "examples/data/breast_b.csv", 
   "head": 1,
   "partition": 10,
-  "work_mode": 1, # 修改成1，表示集群模式
+  "work_mode": 1, 
   "namespace": "fate_flow_test_breast",
-  "table_name": "breast" # 上传上去的表名两方要一致
+  "table_name": "breast" 
 }
 ```
 
 
 
-**上传数据文件（双方）**
+**Upload Data（both parties）**
 
-通用格式
+General Command
 
 ```bash
-python fate_flow_client.py -f upload -c $数据文件
+python fate_flow_client.py -f upload -c ${upload json file}
 ```
 
-这里是
+Here they are
 
-host方：
+host:
 
-```
+```bash
 python fate_flow_client.py -f upload -c examples/upload_host.json 
 ```
 
-guest方：
+guest：
 
 ```bash
 python fate_flow_client.py -f upload -c examples/upload_guest.json 
@@ -121,36 +129,36 @@ python fate_flow_client.py -f upload -c examples/upload_guest.json
 
 
 
-**配置训练参数文件（guest方）**
+**Configure Training Parameters（only guest）**
 
-以examples/文件夹下的纵向LR为例
+Take Hetero Logistic Regression in *examples/* directory for example
 
 ```bash
 vi examples/test_hetero_lr_job_conf.json
 ```
 
-```
+```json
 {
     "initiator": {
-        "role": "guest", # 自己
-        "party_id": 9999 # 自己的id
+        "role": "guest", # guest itself
+        "party_id": 9999 # own id
     },
     "job_parameters": {
-        "work_mode": 1, # 集群模式
-        "processors_per_node": 1
+        "work_mode": 1, # 1 for cluster mode
+        "processors_per_node": 1 
     },
     "role": {
-    	# 修改成对应的party id
+    	# corresponding to party ids
         "guest": [9999],
         "host": [10000],
         "arbiter": [10000]
     },
     "role_parameters": {
-    	# guest方参数
+    	# guest's parameters
         "guest": {
             "args": {
                 "data": {
-                	# name是在upload文件里改好的上传名
+                	# specified in upload configs
                     "train_data": [{"name": "breast", "namespace": "fate_flow_test_breast"}]
                 }
             },
@@ -161,11 +169,11 @@ vi examples/test_hetero_lr_job_conf.json
                 "output_format": ["dense"]
             }
         },
-        # host方参数
+        # host's parameters
         "host": {
             "args": {
                 "data": {
-                	# name是在upload文件里改好的上传名
+                	# specified in upload configs
                     "train_data": [{"name": "breast", "namespace": "fate_flow_test_breast"}]
                 }
             },
@@ -176,7 +184,6 @@ vi examples/test_hetero_lr_job_conf.json
         }
     },
     "algorithm_parameters": {
-    	# 算法的参数
         "hetero_lr_0": {
             "penalty": "L2",
             "optimizer": "rmsprop",
@@ -196,15 +203,15 @@ vi examples/test_hetero_lr_job_conf.json
 
 
 
-**提交训练任务（guest方）**
+**Submit Training Job（guest）**
 
-通用格式
+General Command
 
 ```bash
-python fate_flow_client.py -f submit_job -d $DSL文件 -c $数据文件
+python fate_flow_client.py -f submit_job -d ${dsl json file} -c ${runtime json config file}
 ```
 
-这里是
+Here it is
 
 ```
 python fate_flow_client.py -f submit_job -d examples/test_hetero_lr_job_dsl.json -c examples/test_hetero_lr_job_conf.json
@@ -212,9 +219,9 @@ python fate_flow_client.py -f submit_job -d examples/test_hetero_lr_job_dsl.json
 
 
 
-.dsl文件定义了这个任务各个组件之间的关系（如谁的输出是谁的输入等），类似一个DAG，可自定义
+Dsl file defines the relationships among all modules that this task uses (for example, one's output is another's input)，which is a Directed Acyclic Graph，and could be customized.
 
-如本examples/test_hetero_lr_job_dsl.json定义了
+*examples/test_hetero_lr_job_dsl.json* here defines:
 
 ```
 {
@@ -292,9 +299,9 @@ python fate_flow_client.py -f submit_job -d examples/test_hetero_lr_job_dsl.json
 }
 ```
 
-一套线性的拥有5个组件（dataio_0, hetero_feature_binning_0, hetero_feature_selection_0, hetero_lr_0, evaluation_0）的任务，每个组件有3个属性：module, input, output，分别定义了本组件使用的模块、使用的输入数据和模型，输出的数据和模型。
+a linear task which holds 5 modules (dataio_0, hetero_feature_binning_0, hetero_feature_selection_0, hetero_lr_0, evaluation_0),where each module keeps 3 attributes: module, input and output respectively。
 
-提交任务后，在给出的board_url（fate board模块）上能够可视化查看任务的进行
+After submitting a job, its process could be monitored on FATE Board using the given URL
 
 ```
 {
@@ -314,11 +321,11 @@ python fate_flow_client.py -f submit_job -d examples/test_hetero_lr_job_dsl.json
 }
 ```
 
-如果没问题，retcode和retmsg分别应为0和success
+If nothing went wrong, retcode and retmsg should be 0 and success respectively.
 
-model_id和model_version 会在加载模型和在线推理中用到
+model_id and model_version would be used in binding model and online inference.
 
-jobId和model_version等同，可以用jobId来查看训练任务的状态
+Job_id could be used to query job status:
 
 ```bash
 python fate_flow_client.py -f query_task -j $JOBID | grep f_status
@@ -326,51 +333,49 @@ python fate_flow_client.py -f query_task -j $JOBID | grep f_status
 
 
 
-**加载训练好的模型（guest方）**
+**Load Already-trained Model（only guest）**
 
-修改加载模型的配置文件
+Configure Load json file
 
 ```bash
 vi examples/publish_load_model.json
 ```
 
-```
+```json
 {
     "initiator": {
-    	# 对应改
         "party_id": "9999",
         "role": "guest"
     },
     "role": {
-    	# 对应改
         "guest": ["9999"],
         "host": ["10000"],
         "arbiter": ["10000"]
     },
     "job_parameters": {
-        "work_mode": 1, # 1表示集群模式
-        # model_id和model_version 改成提交任务后返回的模型信息
+        "work_mode": 1, 
+        # model_id model_version should be specified
         "model_id": "arbiter-10000#guest-9999#host-10000#model",
         "model_version": "202006241043279578162"
     }
 }
 ```
 
-加载模型
+Load model
 
-通用格式
+General Command
 
 ```bash
-python fate_flow_client.py -f load -c $加载模型配置文件
+python fate_flow_client.py -f load -c ${load json file}
 ```
 
-这里是
+Here it is
 
 ```bash
 python fate_flow_client.py -f load -c examples/publish_load_model.json
 ```
 
-返回
+Return
 
 ```
 {
@@ -390,52 +395,50 @@ python fate_flow_client.py -f load -c examples/publish_load_model.json
 
 
 
-**绑定加载好的模型到serving（guest方）**
+**Bind loaded Model to Serving（only guest）**
 
-修改绑定模型的配置文件
+Configure Bind json file
 
 ```bash
 vi examples/bind_model_service.json
 ```
 
-```
+```json
 {
-    "service_id": "001", # 给一个唯一的ID
+    "service_id": "001", # assign an identified
     "initiator": {
-    	# 对应改
         "party_id": "9999",
         "role": "guest"
     },
     "role": {
-    	# 对应改
         "guest": ["9999"],
         "host": ["10000"],
         "arbiter": ["10000"]
     },
     "job_parameters": {
-        "work_mode": 1, # 1表示集群模式
-        # model_id和model_version 改成提交任务后返回的模型信息
+        "work_mode": 1, 
+        # model_id and model_version should be specified
         "model_id": "arbiter-10000#guest-9999#host-10000#model",
         "model_version": "202006241043279578162"
     }
 }
 ```
 
-绑定模型
+Bind model
 
-通用格式
+General Command
 
 ```bash
-python fate_flow_client.py -f bind -c $绑定模型配置文件
+python fate_flow_client.py -f bind -c ${bind json file}
 ```
 
-这里是
+Here it is
 
 ```bash
 python fate_flow_client.py -f bind -c examples/bind_model_service.json
 ```
 
-返回
+Return
 
 ```
 {
@@ -446,13 +449,13 @@ python fate_flow_client.py -f bind -c examples/bind_model_service.json
 
 
 
-**在线测试（guest方）**
+**Online Testing（only guest）**
 
-此时模型已经训练完并且加载绑定到serving，我们guest可以POST发送新数据在线测试
+When a model is loaded and bound to Serving, the guest could push an HTTP POST request which contains new data record for online test.
 
-第一种方法：curl
+Method 1: using *curl*
 
-(其中${SERVING_SERVICE_IP}一般就是localhost)
+(where ${SERVING_SERVICE_IP} is the guest)
 
 ```bash
 curl -X POST -H 'Content-Type: application/json' -i 'http://${SERVING_SERVICE_IP}:8059/federation/v1/inference' --data '{
@@ -479,11 +482,10 @@ curl -X POST -H 'Content-Type: application/json' -i 'http://${SERVING_SERVICE_IP
 }'
 ```
 
-第二种方法：RESTED(Chrome插件)
+Method 2: RESTED(Chrome extension)
 
-返回
+Return
 
 ```
 {"flag":0,"data":{"prob":0.020201574669380547,"retcode":0},"retmsg":"success","retcode":0}
 ```
-
