@@ -14,8 +14,6 @@ root
 
 # Start Cluster (both parties)
 
-这个也可以用来启动已经关闭的组件（当你发现某个组件比如fateboard 停止了，也可以用这个命令启动）
-
 It could be also used to restart closed modules (for example, when you find some module such as FATE Board stopped unexpectedly, you could use these commands to restart it).
 
 ```bash
