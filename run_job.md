@@ -1,4 +1,4 @@
-# A Federate Learning Task
+# A Federated Learning Task
 
 
 
