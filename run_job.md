@@ -1,19 +1,25 @@
-# 横向训练任务
+A Federate Learning Task
+
+**data**
 
 rong_homo
 
 
 
-0. **进入容器（双方）**
+**Here we take a Horizontal FL task for example**, and Vertical FL task process is similar.
 
-host方：
+
+
+0. **Enter into Docker (both parties)**
+
+host:
 
 ```bash
 docker exec -it confs_10000_python bash
 cd fate_flow/
 ```
 
-guest方：
+guest
 
 ```bash
 docker exec -it confs_9999_python bash
@@ -22,22 +28,22 @@ cd fate_flow/
 
 
 
-1. **准备数据与配置文件**
+1. **Get the Data Files and Config Files Ready**
 
 ```bash
 ls rong_homo/
 ```
 
-host方：
+host:
 
-```
+```bash
 (venv) [root@e0ae2e3b5362 fate_flow]# ls rong_homo/
 rong_host.csv  rong_test.csv  upload_host.json  upload_test.json
 ```
 
-guest方：
+guest:
 
-```
+```bash
 (venv) [root@1c3f9949fd8e fate_flow]# ls rong_homo/
 homo_lr_binary_conf.json  homo_secureboost_binary_conf.json  rong_test.csv
 homo_lr_dsl.json          homo_secureboost_dsl.json          upload_guest.json
@@ -45,49 +51,47 @@ homo_nn_binary_conf.json  homo_secureboost_dsl_1.json        upload_test.json
 homo_nn_dsl.json          rong_guest.csv
 ```
 
+Files are divided into data files (csv format) and config files (json format).
 
-
-文件分为数据文件和**三种**配置文件（json格式）
-
-其中host方拥有本方数据和测试数据（\_host.csv和\_test.csv）以及上传这两张数据的配置文件（upload_host.json和upload_test.json）
+Host keeps its own training data and test data (\_host.csv和\_test.csv), and upload config files which is to upload these two datasets.
 
 guest方除了拥有本方数据、测试数据（\_guest.csv和\_test.csv）、上传这两张数据的配置文件（upload_guest.json和upload_test.json）之外，还有一个定义了任务流程DAG的配置文件（\_dsl.json），以及一个运行时参数配置文件（\_conf.json）。
 
+Guest not only keeps its own training data, test data, upload config files, but also two more config files: a _dsl.json which defines the task flow (DAG) and a _conf.json which is the runtime config file.
 
 
-2. **上传数据（双方）**
 
-上传数据配置文件
+2. **Upload Data Files (both parties)**
 
-以upload_host.json为例
+the *upload_host.json* file
 
-```json
+```
 {
-    "file":"fate_flow/rong_homo/rong_host.csv", // 需要上传的数据位置
+    "file":"fate_flow/rong_homo/rong_host.csv", // data to upload
     "head":1,
     "partition":10,
-    "work_mode":1, // 这三行都不用改
-    "table_name":"rong_host", //上传之后的表名，建议命名为：原表名_{host/guest/test}
-    "namespace":"homo" // 上传之后的namespace，建议指定为homo或者hetero即可
+    "work_mode":1, 
+    "table_name":"rong_host", //table name in FATE. recommended：origin_{host/guest/test}
+    "namespace":"homo" // namespace in FATE，recommended:{homo/hetero}
 }    
 ```
 
 
 
-通用格式
+General Command
 
 ```bash
-python fate_flow_client.py -f upload -c ${上传数据配置文件}
+python fate_flow_client.py -f upload -c ${Upload json File}
 ```
 
-host方
+host
 
 ```bash
 python fate_flow_client.py -f upload -c rong_homo/upload_host.json
 python fate_flow_client.py -f upload -c rong_homo/upload_test.json
 ```
 
-guest方
+guest
 
 ```bash
 python fate_flow_client.py -f upload -c rong_homo/upload_guest.json
@@ -96,19 +100,15 @@ python fate_flow_client.py -f upload -c rong_homo/upload_test.json
 
 
 
-3. **执行任务(guest方)**
+3. **Submit Jon (only guest)**
 
-通用格式
+General Command
 
 ```bash
-python fate_flow_client.py -f submit_job -d ${dsl文件} -c ${conf文件}
+python fate_flow_client.py -f submit_job -d ${dsl json file} -c ${runtime config json file}
 ```
 
-运行时只需指定conf文件与dsl文件两个配置文件即可。
-
-
-
-如我想执行一个横向boost模型任务
+Here if I'd like to run a Homo Secureboost task:
 
 ```bash
 python fate_flow_client.py -f submit_job -d rong_homo/homo_secureboost_dsl.json -c rong_homo/homo_secureboost_conf.json
@@ -116,17 +116,13 @@ python fate_flow_client.py -f submit_job -d rong_homo/homo_secureboost_dsl.json 
 
 
 
-如果执行其他任务，则只需把-c和-d参数换成对应的文件
+4. **Paramter Tunning**
 
+The dsl file could remain unchanged during a job.
 
+To optimize the model we need to change the "algorithm_parameters" and other parameters in the runtime config file, which is marked below:
 
-4. **参数调整与修改**
-
-dsl文件在一个任务中可以不用修改
-
-优化模型我们只需在conf文件中调整"algorithm_parameters"，除此之外，可调整的参数在下方用注释标出了。
-
-```json
+```
 {
     "initiator": {
         "role": "guest",
@@ -134,7 +130,7 @@ dsl文件在一个任务中可以不用修改
     },
     "job_parameters": {
         "work_mode": 1,
-        "processors_per_node": 2
+        "processors_per_node": 2 // processors to user
     },
     "role": {
         "guest": [9999],
@@ -145,13 +141,13 @@ dsl文件在一个任务中可以不用修改
         "guest": {
             "args": {
                 "data": {
-                    // 指定要训练的数据（guest方）
+                    // specified datasets (guest)
                     "train_data": [{"name": "rong_guest", "namespace": "homo"}],
                     "eval_data": [{"name": "rong_test", "namespace": "homo"}]
                 }
             },
             "dataio_0":{
-                // 指定标签列（guest方）
+                // specified label/the class to predict (guest)
                 "with_label": [true],
                 "label_name": ["y"],
                 "label_type": ["int"],
@@ -167,13 +163,13 @@ dsl文件在一个任务中可以不用修改
         "host": {
             "args": {
                 "data": {
-                    // 指定要训练的数据（host方）
+                    // specified datasets (host)
                     "train_data": [{"name": "rong_host", "namespace": "homo"}],
                     "eval_data": [{"name": "rong_test", "namespace": "homo"}]
                 }
             },
             "dataio_0":{
-                // 指定标签列（host方，在纵向任务中host方无标签）
+                // specified label/the class to predict (host. in Vertical FL task it is false)
                 "with_label": [true],
                 "label_name": ["y"],
                 "label_type": ["int"],
@@ -187,7 +183,7 @@ dsl文件在一个任务中可以不用修改
             }
         }
     },
-    // 算法参数可调
+    // algorithms parameters tunning
     "algorithm_parameters": {
         "secureboost_0": {
             "task_type": "classification",
@@ -227,4 +223,3 @@ dsl文件在一个任务中可以不用修改
     }
 }
 ```
-
