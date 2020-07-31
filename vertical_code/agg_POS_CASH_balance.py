@@ -1,16 +1,11 @@
-import os
-import sys
-import time
-import math
+
 from tqdm import tqdm
-import numpy as np
-import pandas as pd 
 import warnings
 warnings.filterwarnings("ignore")
 
-from math import isnan
+
 from hom.preprocessing import *
-from hom.comp import missToComp
+from hom.comp import missToComp, getComp
 from hom.eda import *
 
 def unique_count(x):
@@ -31,6 +26,8 @@ if __name__ == "__main__":
     raw = raw.sort_values(['SK_ID_PREV','MONTHS_BALANCE'])
     id_name = 'SK_ID_CURR'
     target_name = 'TARGET'
+    # target =  target[:50000]
+    # raw = raw[:50000]
 
     ## 根据特征本质提取特征
     raw['CNT_INSTALMENT_TO_CNT_INSTALMENT_FUTURE'] = raw['CNT_INSTALMENT'].values/raw['CNT_INSTALMENT_FUTURE'].values
@@ -88,7 +85,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_temp_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_temp_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     '''
     对NAME_CONTRACT_STATUS进行分类统计
@@ -119,7 +116,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_temp_name_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_temp_name_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     def getDiffTimeWindowResult(time_windows, comp_df):
         resriction = time_windows*3+1
@@ -153,7 +150,7 @@ if __name__ == "__main__":
         cols = [id_name,target_name]
         cols.extend(list(high_corr.keys()))
         temp_merge_df = temp_merge_df[cols]
-        comp_temp_month_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+        comp_temp_month_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
         return comp_temp_month_df
 
     '''
@@ -161,10 +158,11 @@ if __name__ == "__main__":
     '''
     comp_temp_month_df = getDiffTimeWindowResult(3, comp_df)
     for window in tqdm([6,9,12,15,18,21,24]):
-        temp = comp_temp_month_df = getDiffTimeWindowResult(window, comp_df)
+        temp = getDiffTimeWindowResult(window, comp_df)
         comp_temp_month_df = pd.merge(comp_temp_month_df, temp, on=['SK_ID_CURR','TARGET'])
 
     df_list = [comp_temp_df, comp_temp_name_df, comp_temp_month_df]
     temp = get_merge_df(df_list,['SK_ID_CURR','TARGET'])
     cols = temp.columns
     temp.columns = [x if x=='SK_ID_CURR' or x=='TARGET' else 'x'+str(i) for i,x in enumerate(cols)]
+    print(temp.shape)
