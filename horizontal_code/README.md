@@ -23,3 +23,11 @@
 
 - divide the data into Bank A training set, Bank B training set, and test set
 - train the model in local machine, get auc in different situations
+
+
+### resources of dataset
+Our original data for horizontal federal learning is from: 
+https://www.dcjingsai.com/v2/cmptDetail.html?id=176
+
+Also, we put the dataset after we processed at google drive, and here is the link:
+https://drive.google.com/file/d/1WqNODomhVV9xmTM7kzeqtBwSyMdQFeBj/view?usp=sharing
