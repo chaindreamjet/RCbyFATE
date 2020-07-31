@@ -1,10 +1,4 @@
-import os
-import sys
-import time
-import math
-import tqdm
-import numpy as np
-import pandas as pd 
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -19,12 +13,16 @@ if __name__ == "__main__":
     '''
     read raw data
     '''
-    raw = pd.read_csv("./raw_data/application_train.csv")
+    fileAbspath = os.path.abspath(os.path.dirname(__file__))
+    raw = pd.read_csv(fileAbspath+"/raw_data/application_train.csv")
+    # raw = raw[:5000]
     '''
     eda
     '''
     # 1: draw binary distribution
-    drawDistribution(raw, 'TARGET', 'SK_ID_CURR', 'Home Credit')
+    # drawDistribution(raw, 'TARGET', 'SK_ID_CURR', 'Home Credit')
+    id_name = 'SK_ID_CURR'
+    target_name = 'TARGET'
 
     '''
     Category columns: ordnial variables & unordnial variables
@@ -77,7 +75,7 @@ if __name__ == "__main__":
     dispersed_columns = str_df.columns
 
     comp_df = pd.DataFrame(columns = cols)
-    for col in cols:
+    for col in tqdm(cols):
         if col in miss_columns:
             if col in dispersed_columns:
                 dispersed = True
@@ -88,6 +86,6 @@ if __name__ == "__main__":
             comp_df[col] = pad.getBestCompResult()
         else:
             comp_df[col] = non_str_raw[col].tolist()   
-
+    print(comp_df.shape)
     # save table
-    comp_df.to_csv("fate/fate_application.csv",index=False)  
+    # comp_df.to_csv("fate/fate_application.csv", index=False)
