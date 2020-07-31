@@ -1,16 +1,10 @@
-import os
-import sys
-import time
-import math
-from tqdm import tqdm
-import numpy as np
-import pandas as pd 
+
 import warnings
 warnings.filterwarnings("ignore")
 
-from math import isnan
+
 from hom.preprocessing import *
-from hom.comp import missToComp
+from hom.comp import missToComp,getComp
 from hom.eda import *
 
 if __name__ == "__main__":
@@ -21,6 +15,11 @@ if __name__ == "__main__":
     target = pd.read_csv("target.csv")
     raw = pd.merge(target,raw,on='SK_ID_CURR')
     raw = raw.sort_values(['SK_ID_BUREAU','MONTHS_BALANCE'])
+    id_name = 'SK_ID_CURR'
+    target_name = 'TARGET'
+
+    ## 没有缺失
+    comp_df = raw.copy()
 
     # 1: 直接根据SK_ID_CURR进行统计
     ## 1.1: 无时间窗口统计
@@ -124,7 +123,7 @@ if __name__ == "__main__":
         cols = [id_name,target_name]
         cols.extend(list(high_corr.keys()))
         temp_merge_df = temp_merge_df[cols]
-        comp_temp_name_df = getComp(temp_merge_df, id_name, target_name, ['STATUS'])
+        comp_temp_name_df = getComp(temp_merge_df, False, id_name, target_name, ['STATUS'])
         return comp_temp_name_df
 
     temp_window3_df = get_time_window_df(-4, comp_df, id_name, target_name, target)
