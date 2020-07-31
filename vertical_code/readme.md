@@ -33,3 +33,8 @@ Training
 
 ### vertical
 - do xgboost model training
+
+### resources of dataset
+Our original data for vertical federal learning is from: https://www.kaggle.com/c/home-credit-default-risk
+
+Also, we put the dataset after we processed at google drive, and here is the link: https://drive.google.com/file/d/1n9mMukIeUyaW57tL4C4KmDu1myZ02nfK/view?usp=sharing
