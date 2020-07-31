@@ -1,27 +1,22 @@
-import os
-import sys
-import time
-import math
+
 from tqdm import tqdm
-import numpy as np
-import pandas as pd 
 import warnings
 warnings.filterwarnings("ignore")
 
-from math import isnan
 from hom.preprocessing import *
-from hom.comp import missToComp
+from hom.comp import missToComp, getComp
 from hom.eda import *
 
 
 if __name__ == "__main__":
     raw = pd.read_csv("raw_data/credit_card_balance.csv")
     target = pd.read_csv("target.csv")
-    raw = pd.merge(target,raw,on='SK_ID_CURR')
-    raw = raw.sort_values(['SK_ID_PREV','MONTHS_BALANCE'])
+    raw = pd.merge(target, raw, on='SK_ID_CURR')
+    raw = raw.sort_values(['SK_ID_PREV', 'MONTHS_BALANCE'])
     raw = raw.replace(np.inf,np.nan)
     id_name = 'SK_ID_CURR'
     target_name = 'TARGET'
+    # raw = raw[:50000]
 
     # 5: 根据特征本质提取特征
     raw['AMT_CREDIT_LIMIT_ACTUAL_MINUS_AMT_BALANCE'] = raw['AMT_CREDIT_LIMIT_ACTUAL'] - raw['AMT_BALANCE']
@@ -41,10 +36,10 @@ if __name__ == "__main__":
     缺失值填补
     '''
     cols = raw.columns
-    nan_df = pd.DataFrame(raw[cols[~cols.isin(['SK_ID_CURR','TARGET'])]].isnull().sum(),columns=['counts'])
+    nan_df = pd.DataFrame(raw[cols[~cols.isin(['SK_ID_CURR', 'TARGET'])]].isnull().sum(),columns=['counts'])
     miss_columns = nan_df[nan_df['counts']!=0].index.tolist()
     unmiss_columns = nan_df[nan_df['counts']==0].index.tolist()
-
+    print(miss_columns)
     comp_df = raw[['SK_ID_CURR','TARGET']]
     isTime = True
     for col in tqdm(cols[~cols.isin(['SK_ID_CURR','TARGET'])]):
@@ -54,7 +49,8 @@ if __name__ == "__main__":
             comp_df[col] = pad.getBestCompResult()
         else:
             comp_df[col] = raw[col].tolist()
-
+    comp_df = comp_df.dropna(axis=1)
+    # print(comp_df.shape)
     '''
     不分类统计
     '''
@@ -62,8 +58,9 @@ if __name__ == "__main__":
     count_df.columns = ['BUREAU_COUNT']
     count_df = count_df.reset_index()
     # 2: 统计NAME_CONTRACT_STATUS的种类
-    str_columns = ['NAME_CONTRACT_STATUS','SK_DPD','SK_DPD_DEF']
-    str_df = get_str_df(['NAME_CONTRACT_STATUS'],comp_df,'SK_ID_CURR')
+    str_columns = ['NAME_CONTRACT_STATUS', 'SK_DPD', 'SK_DPD_DEF']
+    # print(comp_df[str_columns].head())
+    str_df = get_str_df(['NAME_CONTRACT_STATUS'], comp_df, 'SK_ID_CURR')
     # 3: 对MONTHS_BALANCE记录总长度，记录最近一次和最远一次分别是什么时候
     month_balance_df = comp_df.groupby('SK_ID_CURR').agg({'MONTHS_BALANCE':{'count','max','min'}})
     month_balance_df.columns = ['MONTHS_BALANCE_FIRST_RECORD_TIME',
@@ -71,8 +68,8 @@ if __name__ == "__main__":
     month_balance_df = month_balance_df.reset_index()
     # 4: 对所有num_cols提取统计特征
     cols = comp_df.columns
-    num_columns = list(cols[~cols.isin(['SK_ID_CURR','TARGET','SK_ID_PREV','NAME_CONTRACT_STATUS','SK_DPD','SK_DPD_DEF'])])
-    num_df = get_num_df(comp_df,'',num_columns)
+    num_columns = list(cols[~cols.isin(['SK_ID_CURR', 'TARGET', 'SK_ID_PREV', 'NAME_CONTRACT_STATUS', 'SK_DPD', 'SK_DPD_DEF'])])
+    num_df = get_num_df(comp_df, '', num_columns)
     num_df = num_df.fillna(0)
     # 5: 对SK_DPD，SK_DPD_DEF去零后求max，min，count
     temp_df = comp_df[['SK_ID_CURR']].drop_duplicates()
@@ -96,7 +93,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_merge_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     '''
     按照NAME_CONTRACT_STATUS提取所有的特征
@@ -143,7 +140,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_name_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_merge_name_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     '''
     按照SK_DPD==0提取
@@ -175,14 +172,14 @@ if __name__ == "__main__":
     AMT_CREDIT_LIMIT_ACTUAL_df.columns = ['AMT_CREDIT_LIMIT_ACTUAL_UNIQUE_COUNT']
     AMT_CREDIT_LIMIT_ACTUAL_df = AMT_CREDIT_LIMIT_ACTUAL_df.reset_index()
 
-    df_list = [target, count_df,str_df,month_balance_df,
+    df_list = [target, count_df, str_df, rename_df,
             num_df, sk_dpd_df, SK_DPD_DEF_df, AMT_CREDIT_LIMIT_ACTUAL_df]
-    temp_merge_df = get_merge_df(df_list,'SK_ID_CURR')
+    temp_merge_df = get_merge_df(df_list, 'SK_ID_CURR')
     high_corr = get_high_corr(target_name, temp_merge_df, id_name, 0.03)
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_SK_DPD_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_merge_SK_DPD_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
 
     '''
@@ -215,14 +212,14 @@ if __name__ == "__main__":
     AMT_CREDIT_LIMIT_ACTUAL_df.columns = ['AMT_CREDIT_LIMIT_ACTUAL_UNIQUE_COUNT']
     AMT_CREDIT_LIMIT_ACTUAL_df = AMT_CREDIT_LIMIT_ACTUAL_df.reset_index()
 
-    df_list = [target, count_df,str_df,month_balance_df,
+    df_list = [target, count_df,str_df,
             num_df, sk_dpd_df, SK_DPD_DEF_df, AMT_CREDIT_LIMIT_ACTUAL_df]
-    temp_merge_df = get_merge_df(df_list,'SK_ID_CURR')
+    temp_merge_df = get_merge_df(df_list, 'SK_ID_CURR')
     high_corr = get_high_corr(target_name, temp_merge_df, id_name, 0.03)
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_3month_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_merge_3month_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     '''
     按照6个月提取所有的特征
@@ -266,7 +263,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_6month_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_merge_6month_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     '''
     按照12个月提取所有的特征
@@ -306,12 +303,14 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_12month_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_merge_12month_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     df_list = [comp_merge_df, comp_merge_name_df, comp_merge_3month_df, comp_merge_6month_df, comp_merge_12month_df]
     temp = get_merge_df(df_list,['SK_ID_CURR','TARGET'])
     cols = temp.columns
     temp.columns = [x if x=='SK_ID_CURR' or x=='TARGET' else 'x'+str(i) for i,x in enumerate(cols)]
+
+    # temp.to_csv('fate/fate_credit_card.csv',index=False)
 
 
 
