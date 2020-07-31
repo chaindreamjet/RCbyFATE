@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 from math import isnan
 from hom.preprocessing import *
-from hom.comp import missToComp
+from hom.comp import missToComp, getComp
 from hom.eda import *
 
 
@@ -20,6 +20,9 @@ if __name__ == "__main__":
     raw = pd.merge(target,raw,on='SK_ID_CURR')
     id_name = 'SK_ID_CURR'
     target_name = 'TARGET'
+    # target = target[:50000]
+    # raw = raw[:50000]
+
     # 创建新变量
     raw['diff1'] = raw['DAYS_LAST_DUE'] - raw['DAYS_TERMINATION']
     raw['diff2'] = raw['AMT_APPLICATION'] - raw['AMT_CREDIT']
@@ -43,9 +46,10 @@ if __name__ == "__main__":
     miss_columns = nan_df[nan_df['counts']!=0].index.tolist()
     unmiss_columns = nan_df[nan_df['counts']==0].index.tolist()
 
-    comp_df = raw[['SK_ID_CURR','TARGET']]
+    comp_df = raw[['SK_ID_CURR', 'TARGET']]
     isTime = False
-    for col in cols[~cols.isin(['SK_ID_CURR','TARGET'])]:
+    # get_nan_info(raw)
+    for col in tqdm(cols[~cols.isin(['SK_ID_CURR', 'TARGET'])]):
         if col in miss_columns and col not in str_columns:
             dispersed = False 
             temp =raw.copy()
@@ -53,6 +57,9 @@ if __name__ == "__main__":
             comp_df[col] = pad.getBestCompResult()
         else:
             comp_df[col] = raw[col].tolist()
+    comp_df = comp_df.dropna(axis=1, how='all')
+    comp_df = comp_df.fillna(0)
+    # get_nan_info(comp_df)
 
     def get_type_count_df(secondary_rule, comp_df,str_columns):
         temp = comp_df.copy()
@@ -77,7 +84,7 @@ if __name__ == "__main__":
         cols = [id_name,target_name]
         cols.extend(list(high_corr.keys()))
         temp_merge_df = temp_merge_df[cols]
-        comp_temp_name_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+        comp_temp_name_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
         return comp_temp_name_df
 
     '''
@@ -94,24 +101,25 @@ if __name__ == "__main__":
     str_df = get_str_df(str_columns,comp_df,'SK_ID_CURR')
     str_df = str_df.fillna(0)
     # 3: 统计统计特征
-    num_df = get_num_df(comp_df,'',num_columns)
+    num_columns = [x for x in num_columns if x in comp_df.columns.tolist()]
+    num_df = get_num_df(comp_df, '', num_columns)
 
     df_list = [target, str_df, count_df, unique_count_df, num_df]
-    temp_merge_df = get_merge_df(df_list,'SK_ID_CURR')
+    temp_merge_df = get_merge_df(df_list, 'SK_ID_CURR')
     cols = temp_merge_df.columns
     temp_merge_df.columns = [x if x=='SK_ID_CURR' or x=='TARGET' else 'x'+str(i) for i,x in enumerate(cols)]
     high_corr = get_high_corr(target_name, temp_merge_df, id_name, 0.03)
-    cols = [id_name,target_name]
+    cols = [id_name, target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_temp_df = getComp(temp_merge_df, id_name, target_name, str_columns)
+    comp_temp_df = getComp(temp_merge_df, False, id_name, target_name, str_columns)
 
     '''
     按照NAME_CONTRACT_TYPE统计
     '''
     type_df = target.copy()
     for col in tqdm(str_columns):
-        df = get_type_count_df(col, comp_df,str_columns)
+        df = get_type_count_df(col, comp_df, str_columns)
         type_df = pd.merge(df, type_df, on = [id_name, target_name])
 
     df_list = [temp_merge_df, type_df]
