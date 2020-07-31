@@ -5,8 +5,10 @@
 **data**
 
 We put the dataset we used on google drive:
-rong_homo: https://drive.google.com/file/d/1WqNODomhVV9xmTM7kzeqtBwSyMdQFeBj/view?usp=sharing
 
+For horizontal federal learning: https://drive.google.com/file/d/1WqNODomhVV9xmTM7kzeqtBwSyMdQFeBj/view?usp=sharing
+
+For vertical federal learning: https://drive.google.com/file/d/1n9mMukIeUyaW57tL4C4KmDu1myZ02nfK/view?usp=sharing
 
 
 **Here we take a Horizontal FL task for example**, and Vertical FL task process is similar.
