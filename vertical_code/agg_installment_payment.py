@@ -1,25 +1,20 @@
-import os
-import sys
-import time
-import math
 from tqdm import tqdm
-import numpy as np
-import pandas as pd 
 import warnings
 warnings.filterwarnings("ignore")
 
-from math import isnan
 from hom.preprocessing import *
-from hom.comp import missToComp
+from hom.comp import missToComp, getComp
 from hom.eda import *
 
 if __name__ == "__main__":
     raw = pd.read_csv('raw_data/installments_payments.csv')
     target = pd.read_csv("target.csv")
     raw = pd.merge(target,raw,on='SK_ID_CURR')
-    raw = raw.sort_values(['SK_ID_PREV','DAYS_INSTALMENT'])
+    raw = raw.sort_values(['SK_ID_PREV', 'DAYS_INSTALMENT'])
     id_name = 'SK_ID_CURR'
     target_name = 'TARGET'
+    # target =  target[:50000]
+    # raw = raw[:50000]
 
     # 根据特征本质提取特征
     raw['diff1'] = raw['DAYS_INSTALMENT'] - raw['DAYS_ENTRY_PAYMENT']
@@ -35,7 +30,7 @@ if __name__ == "__main__":
 
     comp_df = raw[['SK_ID_CURR','TARGET']]
     isTime = True
-    for col in cols[~cols.isin(['SK_ID_CURR','TARGET'])]:
+    for col in tqdm(cols[~cols.isin(['SK_ID_CURR','TARGET'])]):
         if col in miss_columns:
             temp = raw.copy()
             pad = missToComp(temp, col, 'SK_ID_CURR', 'TARGET', dispersed=False,isTime=isTime)
@@ -66,7 +61,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_df = getComp(temp_merge_df, id_name, target_name, [])
+    comp_merge_df = getComp(temp_merge_df, False, id_name, target_name, [])
 
 
     '''
@@ -87,7 +82,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_version0_df = getComp(temp_merge_df, id_name, target_name, [])
+    comp_merge_version0_df = getComp(temp_merge_df, False, id_name, target_name, [])
 
     '''
     按照NUM_INSTALMENT_VERSION==1提取
@@ -107,7 +102,7 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_version1_df = getComp(temp_merge_df, id_name, target_name, [])
+    comp_merge_version1_df = getComp(temp_merge_df, False, id_name, target_name, [])
 
     '''
     按照NUM_INSTALMENT_NUMBER==3提取
@@ -127,11 +122,11 @@ if __name__ == "__main__":
     cols = [id_name,target_name]
     cols.extend(list(high_corr.keys()))
     temp_merge_df = temp_merge_df[cols]
-    comp_merge_number3_df = getComp(temp_merge_df, id_name, target_name, [])
+    comp_merge_number3_df = getComp(temp_merge_df, False, id_name, target_name, [])
 
     df_list = [comp_merge_df, comp_merge_version0_df, comp_merge_version1_df,
-           comp_merge_version1_df, comp_merge_version1_df, 
-          comp_merge_number1_df, comp_merge_number2_df, comp_merge_number3_df]
+           comp_merge_version1_df, comp_merge_version1_df,  comp_merge_number3_df]
     temp_df = get_merge_df(df_list,['SK_ID_CURR','TARGET'])
     cols = temp_df.columns
     temp_df.columns = [x if x=='SK_ID_CURR' or x=='TARGET' else 'x'+str(i) for i,x in enumerate(cols)]
+    print(temp_df.shape)
